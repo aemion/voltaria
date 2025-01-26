@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { KeyboardEvent, useState } from "react";
 import Cell from "./Cell";
 import Vector2D from "./Vector2D";
 import Grid from "./Grid";
 import { isChar } from "./Char";
+import { useFocus } from "./useFocus";
+
+const cellSize = 40;
 
 export default function Crosswords() {
   const [grid, setGrid] = useState(
@@ -12,7 +15,7 @@ export default function Crosswords() {
   );
   const [cursor, setCursor] = useState(new Vector2D(0, 0));
 
-  const move = (e: React.KeyboardEvent<SVGElement>) => {
+  const move = (e: KeyboardEvent<SVGElement>) => {
     const directions: { [key: string]: Vector2D } = {
       ArrowDown: new Vector2D(0, 1),
       ArrowUp: new Vector2D(0, -1),
@@ -29,7 +32,7 @@ export default function Crosswords() {
     }
   };
 
-  const changeValue = (e: React.KeyboardEvent<SVGElement>) => {
+  const changeValue = (e: KeyboardEvent<SVGElement>) => {
     if (e.ctrlKey) {
       return;
     }
@@ -46,21 +49,24 @@ export default function Crosswords() {
     setGrid(grid.withValue(cursor, value));
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<SVGElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<SVGElement>) => {
     move(e);
     changeValue(e);
   };
 
-  const cellSize = 40;
+  const [ref, isFocused, setFocused] = useFocus<SVGSVGElement>();
 
   return (
     <svg
+      ref={ref}
       tabIndex={0}
       style={{ dominantBaseline: "hanging", outline: "none" }}
       onKeyDown={handleKeyDown}
       width={cellSize * grid.width + 1}
       height={cellSize * grid.height + 1}
       shapeRendering={"crispEdges"}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
     >
       {grid.getCells().map(({ position, value }) => (
         <Cell
@@ -68,8 +74,8 @@ export default function Crosswords() {
           symbol={value}
           {...position}
           size={cellSize}
-          highlighted={position.equals(cursor)}
-          onClick={() => setCursor(position)}
+          highlighted={position.equals(cursor) && isFocused}
+          onMouseDown={() => setCursor(position)}
         />
       ))}
     </svg>

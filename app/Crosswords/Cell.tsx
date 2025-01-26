@@ -6,14 +6,14 @@ export default function Cell({
   size,
   symbol,
   highlighted,
-  onClick,
+  onMouseDown,
 }: {
   x: number;
   y: number;
   size: number;
   symbol: Char;
   highlighted: boolean;
-  onClick?: () => void;
+  onMouseDown?: () => void;
 }) {
   const rectCoords = {
     x: x * size + 1,
@@ -27,7 +27,7 @@ export default function Cell({
   };
 
   return (
-    <g {...rectCoords} width={size} height={size} onClick={onClick}>
+    <g {...rectCoords} width={size} height={size} onMouseDown={onMouseDown}>
       <rect
         {...rectCoords}
         width={size}
