@@ -3,20 +3,21 @@ import { Char } from "./Char";
 export default function Cell({
   x,
   y,
+  size,
   symbol,
   highlighted,
   onClick,
 }: {
   x: number;
   y: number;
+  size: number;
   symbol: Char;
   highlighted: boolean;
   onClick?: () => void;
 }) {
-  const size = 40;
   const rectCoords = {
-    x: x * size - (x > 0 ? 0.5 : 0),
-    y: y * size - (y > 0 ? 0.5 : 0),
+    x: x * size + 1,
+    y: y * size + 1,
   };
   const textCoords = {
     x: rectCoords.x + size / 2,
@@ -24,6 +25,7 @@ export default function Cell({
     dominantBaseline: "middle",
     textAnchor: "middle",
   };
+
   return (
     <g {...rectCoords} width={size} height={size} onClick={onClick}>
       <rect
@@ -32,7 +34,7 @@ export default function Cell({
         height={size}
         fill={highlighted ? "yellow" : symbol !== "#" ? "transparent" : "#000"}
         stroke="black"
-        strokeWidth={0.5}
+        strokeWidth={1}
       ></rect>
       <text {...textCoords} width={size} height={size}>
         {symbol}

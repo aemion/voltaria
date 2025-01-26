@@ -51,17 +51,23 @@ export default function Crosswords() {
     changeValue(e);
   };
 
+  const cellSize = 40;
+
   return (
     <svg
-      tabIndex={1}
+      tabIndex={0}
       style={{ dominantBaseline: "hanging", outline: "none" }}
       onKeyDown={handleKeyDown}
+      width={cellSize * grid.width + 1}
+      height={cellSize * grid.height + 1}
+      shapeRendering={"crispEdges"}
     >
       {grid.getCells().map(({ position, value }) => (
         <Cell
           key={grid.toIndex(position)}
           symbol={value}
           {...position}
+          size={cellSize}
           highlighted={position.equals(cursor)}
           onClick={() => setCursor(position)}
         />

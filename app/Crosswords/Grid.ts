@@ -19,6 +19,7 @@ class Grid {
     if (!this.isInside(position)) {
       return this;
     }
+
     return new Grid(
       this.values.with(this.toIndex(position), value),
       this.width
