@@ -5,13 +5,15 @@ export default function Cell({
   y,
   symbol,
   highlighted,
+  onClick,
 }: {
   x: number;
   y: number;
   symbol: Char;
   highlighted: boolean;
+  onClick?: () => void;
 }) {
-  const size = 20;
+  const size = 40;
   const rectCoords = {
     x: x * size - (x > 0 ? 0.5 : 0),
     y: y * size - (y > 0 ? 0.5 : 0),
@@ -23,12 +25,12 @@ export default function Cell({
     textAnchor: "middle",
   };
   return (
-    <g {...rectCoords} width={size} height={size}>
+    <g {...rectCoords} width={size} height={size} onClick={onClick}>
       <rect
         {...rectCoords}
         width={size}
         height={size}
-        fill={highlighted ? "yellow" : symbol !== "#" ? "none" : "#000"}
+        fill={highlighted ? "yellow" : symbol !== "#" ? "transparent" : "#000"}
         stroke="black"
         strokeWidth={0.5}
       ></rect>

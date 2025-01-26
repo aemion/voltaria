@@ -10,7 +10,7 @@ export default function Crosswords() {
   const [grid, setGrid] = useState(
     new Grid(["A", "#", "C", "D", "E", "F", "G", "H"], 4)
   );
-  const [cursor, seCursor] = useState(new Vector2D(0, 0));
+  const [cursor, setCursor] = useState(new Vector2D(0, 0));
 
   const move = (e: React.KeyboardEvent<SVGElement>) => {
     const directions: { [key: string]: Vector2D } = {
@@ -25,11 +25,15 @@ export default function Crosswords() {
     }
     const nexCursor = cursor.add(direction);
     if (grid.isInside(nexCursor)) {
-      seCursor(nexCursor);
+      setCursor(nexCursor);
     }
   };
 
   const changeValue = (e: React.KeyboardEvent<SVGElement>) => {
+    if (e.ctrlKey) {
+      return;
+    }
+
     if (e.code === "Delete" || e.code === "Backspace") {
       setGrid(grid.withValue(cursor, ""));
     }
@@ -59,6 +63,7 @@ export default function Crosswords() {
           symbol={value}
           {...position}
           highlighted={position.equals(cursor)}
+          onClick={() => setCursor(position)}
         />
       ))}
     </svg>
