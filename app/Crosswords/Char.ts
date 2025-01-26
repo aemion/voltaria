@@ -25,9 +25,14 @@ export type Char =
   | "X"
   | "Y"
   | "Z"
-  | "#";
+  | "#"
+  | "";
 
 export function isChar(s: string): s is Char {
+  if (s.length === 0) {
+    return true;
+  }
+
   if (s.length > 1) {
     return false;
   }

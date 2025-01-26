@@ -30,6 +30,10 @@ export default function Crosswords() {
   };
 
   const changeValue = (e: React.KeyboardEvent<SVGElement>) => {
+    if (e.code === "Delete" || e.code === "Backspace") {
+      setGrid(grid.withValue(cursor, ""));
+    }
+
     const value = e.key.toUpperCase();
     if (!isChar(value)) {
       return;
