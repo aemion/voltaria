@@ -4,14 +4,22 @@ import { KeyboardEvent, useState } from "react";
 import Cell from "./Cell";
 import Vector2D from "./Vector2D";
 import Grid from "./Grid";
-import { isChar } from "./Char";
+import { Char, isChar } from "./Char";
 import { useFocus } from "./useFocus";
 
 const cellSize = 40;
 
 export default function Crosswords() {
-  const [grid, setGrid] = useState(new Grid(new Array(8 * 12).fill(""), 8));
-  const [cursor, setCursor] = useState(new Vector2D(0, 0));
+  const [grid, setGrid] = useState(
+    new Grid(
+      ("VOLTARIA".split("") as Char[])
+        .concat(new Array(8 * 11).fill(""))
+        .with(11, "#")
+        .with(12, "#"),
+      8
+    )
+  );
+  const [cursor, setCursor] = useState(new Vector2D(0, 1));
   const [wordDirection, setWordDirection] = useState(new Vector2D(1, 0));
   const [ref, isFocused, setFocused] = useFocus<SVGSVGElement>();
 
