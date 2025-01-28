@@ -10,10 +10,17 @@ import { useFocus } from "./useFocus";
 const cellSize = 40;
 
 export default function Crosswords() {
-  const [grid, setGrid] = useState(
-    new Grid(["A", "#", "C", "D", "E", "F", "G", "H"], 4)
-  );
+  const [grid, setGrid] = useState(new Grid(new Array(8 * 12).fill(""), 8));
   const [cursor, setCursor] = useState(new Vector2D(0, 0));
+  const [wordDirection, setWordDirection] = useState(new Vector2D(1, 0));
+  const [ref, isFocused, setFocused] = useFocus<SVGSVGElement>();
+
+  const doMove = (direction: Vector2D) => {
+    const nexCursor = cursor.add(direction);
+    if (grid.isInside(nexCursor)) {
+      setCursor(nexCursor);
+    }
+  };
 
   const move = (e: KeyboardEvent<SVGElement>) => {
     const directions: { [key: string]: Vector2D } = {
@@ -23,13 +30,16 @@ export default function Crosswords() {
       ArrowRight: new Vector2D(1, 0),
     };
     const direction = directions[e.code];
+
     if (direction === undefined) {
       return;
     }
-    const nexCursor = cursor.add(direction);
-    if (grid.isInside(nexCursor)) {
-      setCursor(nexCursor);
-    }
+
+    setWordDirection(
+      new Vector2D(Math.abs(direction.x), Math.abs(direction.y))
+    );
+
+    doMove(direction);
   };
 
   const changeValue = (e: KeyboardEvent<SVGElement>) => {
@@ -39,6 +49,11 @@ export default function Crosswords() {
 
     if (e.code === "Delete" || e.code === "Backspace") {
       setGrid(grid.withValue(cursor, ""));
+      if (e.code === "Backspace") {
+        doMove(wordDirection.opposite());
+      }
+
+      return;
     }
 
     const value = e.key.toUpperCase();
@@ -47,14 +62,13 @@ export default function Crosswords() {
     }
 
     setGrid(grid.withValue(cursor, value));
+    doMove(wordDirection);
   };
 
   const handleKeyDown = (e: KeyboardEvent<SVGElement>) => {
     move(e);
     changeValue(e);
   };
-
-  const [ref, isFocused, setFocused] = useFocus<SVGSVGElement>();
 
   return (
     <svg
