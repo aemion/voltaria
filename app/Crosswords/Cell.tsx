@@ -1,20 +1,25 @@
+import { PropsWithChildren } from "react";
 import { Char } from "./Char";
+
+interface Props extends PropsWithChildren {
+  x: number;
+  y: number;
+  size: number;
+  symbol: Char;
+  isHighlighted: boolean;
+  isActive?: boolean;
+  onMouseDown?: () => void;
+}
 
 export default function Cell({
   x,
   y,
   size,
   symbol,
-  highlighted,
+  isHighlighted,
   onMouseDown,
-}: {
-  x: number;
-  y: number;
-  size: number;
-  symbol: Char;
-  highlighted: boolean;
-  onMouseDown?: () => void;
-}) {
+  isActive = false,
+}: Props) {
   const rectCoords = {
     x: x * size + 1,
     y: y * size + 1,
@@ -25,6 +30,12 @@ export default function Cell({
     dominantBaseline: "middle",
     textAnchor: "middle",
   };
+  const cursorCoords = {
+    x1: textCoords.x,
+    x2: textCoords.x,
+    y1: textCoords.y - size / 3,
+    y2: textCoords.y + size / 5,
+  };
 
   return (
     <g {...rectCoords} width={size} height={size} onMouseDown={onMouseDown}>
@@ -32,13 +43,26 @@ export default function Cell({
         {...rectCoords}
         width={size}
         height={size}
-        fill={highlighted ? "yellow" : symbol !== "#" ? "transparent" : "#000"}
+        fill={
+          isHighlighted ? "yellow" : symbol !== "#" ? "transparent" : "#000"
+        }
         stroke="black"
         strokeWidth={1}
       ></rect>
       <text {...textCoords} width={size} height={size}>
         {symbol}
       </text>
+      {isActive && (
+        <line {...cursorCoords} stroke="black">
+          <animate
+            attributeName="stroke"
+            values="#black;transparent"
+            dur="1s"
+            calcMode="discrete"
+            repeatCount="indefinite"
+          />
+        </line>
+      )}
     </g>
   );
 }

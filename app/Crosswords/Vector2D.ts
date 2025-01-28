@@ -8,6 +8,10 @@ class Vector2D {
   equals(b: Vector2D) {
     return this.x === b.x && this.y === b.y;
   }
+
+  opposite(): Vector2D {
+    return new Vector2D(-this.x, -this.y);
+  }
 }
 
 export default Vector2D;

@@ -74,7 +74,8 @@ export default function Crosswords() {
           symbol={value}
           {...position}
           size={cellSize}
-          highlighted={position.equals(cursor) && isFocused}
+          isHighlighted={position.equals(cursor) && isFocused}
+          isActive={position.equals(cursor) && isFocused}
           onMouseDown={() => setCursor(position)}
         />
       ))}
