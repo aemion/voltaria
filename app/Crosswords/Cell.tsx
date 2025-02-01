@@ -1,4 +1,4 @@
-import { PropsWithChildren } from "react";
+import { MouseEventHandler, PropsWithChildren } from "react";
 import { Char } from "./Char";
 
 interface Props extends PropsWithChildren {
@@ -8,7 +8,7 @@ interface Props extends PropsWithChildren {
   symbol: Char;
   isHighlighted: boolean;
   isActive?: boolean;
-  onMouseDown?: () => void;
+  onMouseDown?: MouseEventHandler<SVGGElement>;
 }
 
 export default function Cell({

@@ -1,6 +1,6 @@
 "use client";
 
-import { KeyboardEvent, useState } from "react";
+import { ChangeEvent, KeyboardEvent, MouseEvent, useState } from "react";
 import Cell from "./Cell";
 import Vector2D from "./Vector2D";
 import Grid from "./Grid";
@@ -21,7 +21,8 @@ export default function Crosswords() {
   );
   const [cursor, setCursor] = useState(new Vector2D(0, 1));
   const [wordDirection, setWordDirection] = useState(new Vector2D(1, 0));
-  const [ref, isFocused, setFocused] = useFocus<SVGSVGElement>();
+  const [ref, isFocused, setFocused] = useFocus<HTMLInputElement>();
+  const [input, setInput] = useState("");
 
   const doMove = (direction: Vector2D) => {
     const nexCursor = cursor.add(direction);
@@ -30,7 +31,7 @@ export default function Crosswords() {
     }
   };
 
-  const move = (e: KeyboardEvent<SVGElement>) => {
+  const move = (e: KeyboardEvent) => {
     const directions: { [key: string]: Vector2D } = {
       ArrowDown: new Vector2D(0, 1),
       ArrowUp: new Vector2D(0, -1),
@@ -42,6 +43,7 @@ export default function Crosswords() {
     if (direction === undefined) {
       return;
     }
+    e.preventDefault();
 
     setWordDirection(
       new Vector2D(Math.abs(direction.x), Math.abs(direction.y))
@@ -50,57 +52,82 @@ export default function Crosswords() {
     doMove(direction);
   };
 
-  const changeValue = (e: KeyboardEvent<SVGElement>) => {
+  const deleteValue = (e: KeyboardEvent) => {
     if (e.ctrlKey) {
       return;
     }
 
-    if (e.code === "Delete" || e.code === "Backspace") {
+    if (e.key === "Delete" || e.key === "Backspace") {
       setGrid(grid.withValue(cursor, ""));
-      if (e.code === "Backspace") {
+      if (e.key === "Backspace") {
         doMove(wordDirection.opposite());
       }
+      setInput(input.slice(0, -1));
 
-      return;
+      e.preventDefault();
     }
+  };
 
-    const value = e.key.toUpperCase();
+  const handleKeyDown = (e: KeyboardEvent) => {
+    move(e);
+    deleteValue(e);
+  };
+
+  const handleMouseDown = (e: MouseEvent, position: Vector2D) => {
+    e.preventDefault();
+    setCursor(position);
+    setFocused(true);
+  };
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    const value = inputValue.slice(-1).toUpperCase();
+
     if (!isChar(value)) {
       return;
     }
 
     setGrid(grid.withValue(cursor, value));
+    setInput(`${input}${value}`);
     doMove(wordDirection);
   };
 
-  const handleKeyDown = (e: KeyboardEvent<SVGElement>) => {
-    move(e);
-    changeValue(e);
-  };
-
   return (
-    <svg
-      ref={ref}
-      tabIndex={0}
-      style={{ dominantBaseline: "hanging", outline: "none" }}
-      onKeyDown={handleKeyDown}
-      width={cellSize * grid.width + 1}
-      height={cellSize * grid.height + 1}
-      shapeRendering={"crispEdges"}
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
-    >
-      {grid.getCells().map(({ position, value }) => (
-        <Cell
-          key={grid.toIndex(position)}
-          symbol={value}
-          {...position}
-          size={cellSize}
-          isHighlighted={position.equals(cursor) && isFocused}
-          isActive={position.equals(cursor) && isFocused}
-          onMouseDown={() => setCursor(position)}
-        />
-      ))}
-    </svg>
+    <>
+      <input
+        style={{
+          opacity: 0,
+          width: 0,
+          height: 0,
+          margin: 0,
+          position: "absolute",
+          zIndex: -10,
+          border: 0,
+        }}
+        value={input}
+        type="text"
+        onKeyDown={handleKeyDown}
+        onChange={handleChange}
+        ref={ref}
+      />
+      <svg
+        style={{ dominantBaseline: "hanging", outline: "none" }}
+        width={cellSize * grid.width + 1}
+        height={cellSize * grid.height + 1}
+        shapeRendering={"crispEdges"}
+      >
+        {grid.getCells().map(({ position, value }) => (
+          <Cell
+            key={grid.toIndex(position)}
+            symbol={value}
+            {...position}
+            size={cellSize}
+            isHighlighted={position.equals(cursor) && isFocused}
+            isActive={position.equals(cursor) && isFocused}
+            onMouseDown={(e) => handleMouseDown(e, position)}
+          />
+        ))}
+      </svg>
+    </>
   );
 }
