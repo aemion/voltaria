@@ -56,7 +56,7 @@ export default function Cell({
         <line {...cursorCoords} stroke="black">
           <animate
             attributeName="stroke"
-            values="#black;transparent"
+            values="black;transparent"
             dur="1s"
             calcMode="discrete"
             repeatCount="indefinite"

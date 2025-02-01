@@ -5,6 +5,7 @@ import Cell from "./Cell";
 import Vector2D from "./Vector2D";
 import Grid from "./Grid";
 import { Char, isChar } from "./Char";
+import styles from "./crosswords.module.css";
 import { useFocus } from "./useFocus";
 
 const cellSize = 40;
@@ -95,15 +96,7 @@ export default function Crosswords() {
   return (
     <>
       <input
-        style={{
-          opacity: 0,
-          width: 0,
-          height: 0,
-          margin: 0,
-          position: "absolute",
-          zIndex: -10,
-          border: 0,
-        }}
+        className={styles.input}
         value={input}
         type="text"
         onKeyDown={handleKeyDown}
@@ -111,7 +104,7 @@ export default function Crosswords() {
         ref={ref}
       />
       <svg
-        style={{ dominantBaseline: "hanging", outline: "none" }}
+        className={styles.grid}
         width={cellSize * grid.width + 1}
         height={cellSize * grid.height + 1}
         shapeRendering={"crispEdges"}
