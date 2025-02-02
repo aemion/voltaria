@@ -27,9 +27,20 @@
   }
 }
 
+@media (max-width: 900px) {
+  .main {
+    flex-direction: column;
+  }
+}
+
+@media (min-width: 900px) {
+  .main {
+    flex-direction: row;
+  }
+}
+
 .main {
   display: flex;
-  flex-direction: row;
   gap: 32px;
   grid-row-start: 2;
 }
