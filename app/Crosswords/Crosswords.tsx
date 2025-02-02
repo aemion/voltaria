@@ -7,8 +7,10 @@ import Grid, { Mode } from "./Grid";
 import { Char, isChar } from "./Char";
 import styles from "./crosswords.module.css";
 import { useFocus } from "./useFocus";
+import { Direction } from "./Direction";
 
 const cellSize = 40;
+const isProd = process.env.NODE_ENV === "production";
 
 export default function Crosswords() {
   const [grid, setGrid] = useState(
@@ -35,10 +37,10 @@ export default function Crosswords() {
 
   const move = (e: KeyboardEvent) => {
     const directions: { [key: string]: Vector2D } = {
-      ArrowDown: new Vector2D(0, 1),
-      ArrowUp: new Vector2D(0, -1),
-      ArrowLeft: new Vector2D(-1, 0),
-      ArrowRight: new Vector2D(1, 0),
+      ArrowDown: Direction.Horizontal.vector,
+      ArrowUp: Direction.Horizontal.vector.opposite(),
+      ArrowLeft: Direction.Vertical.vector.opposite(),
+      ArrowRight: Direction.Vertical.vector,
     };
     const direction = directions[e.code];
 
@@ -112,7 +114,7 @@ export default function Crosswords() {
   return (
     <>
       <input
-        className={styles.input}
+        className={isProd ? styles.input : ""}
         value={input}
         type="text"
         onKeyDown={handleKeyDown}
