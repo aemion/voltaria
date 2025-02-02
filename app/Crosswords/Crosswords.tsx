@@ -4,16 +4,20 @@ import { ChangeEvent, KeyboardEvent, MouseEvent, useState } from "react";
 import Cell from "./Cell";
 import Vector2D from "./Vector2D";
 import { isChar } from "./Char";
-import sample from "./sample";
 import styles from "./crosswords.module.css";
 import { useFocus } from "./useFocus";
 import { Direction } from "./Direction";
+import Grid from "./Grid";
 
 const cellSize = 40;
-const isProd = process.env.NODE_ENV === "production";
 
-export default function Crosswords() {
-  const [grid, setGrid] = useState(sample);
+export default function Crosswords({
+  grid,
+  onChange,
+}: {
+  grid: Grid;
+  onChange: (grid: Grid) => void;
+}) {
   const [cursor, setCursor] = useState(new Vector2D(0, 0));
   const [wordDirection, setWordDirection] = useState(new Vector2D(1, 0));
   const [ref, isFocused, setFocused] = useFocus<HTMLInputElement>();
@@ -58,7 +62,7 @@ export default function Crosswords() {
       return;
     }
 
-    setGrid(grid.withValue(cursor, ""));
+    onChange(grid.withValue(cursor, ""));
     if (e.key === "Backspace") {
       doMove(wordDirection.opposite());
     }
@@ -97,7 +101,7 @@ export default function Crosswords() {
       return;
     }
 
-    setGrid(grid.withValue(cursor, value));
+    onChange(grid.withValue(cursor, value));
     setInput(`${input}${value}`);
     doMove(wordDirection);
   };
@@ -105,7 +109,7 @@ export default function Crosswords() {
   return (
     <>
       <input
-        className={isProd ? styles.input : ""}
+        className={styles.input}
         value={input}
         type="text"
         onKeyDown={handleKeyDown}
@@ -130,24 +134,6 @@ export default function Crosswords() {
           />
         ))}
       </svg>
-      <div>
-        <h1>Horizontal</h1>
-        <ul>
-          {grid.clueCollection
-            .getHorizontalGroupedByRow()
-            .map((clues, index) => (
-              <li key={index}>{clues.map((clue) => clue.clue).join(". ")}</li>
-            ))}
-        </ul>
-        <h1>Vertical</h1>
-        <ul>
-          {grid.clueCollection
-            .getVerticalGroupedByColumn()
-            .map((clues, index) => (
-              <li key={index}>{clues.map((clue) => clue.clue).join(". ")}</li>
-            ))}
-        </ul>
-      </div>
     </>
   );
 }
