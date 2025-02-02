@@ -1,9 +1,18 @@
 import { Char } from "./Char";
 import Vector2D from "./Vector2D";
 
+export enum Mode {
+  Solve,
+  Build,
+}
+
 class Grid {
   readonly height: number;
-  constructor(readonly values: Char[], readonly width: number) {
+  constructor(
+    readonly values: Char[],
+    readonly width: number,
+    readonly mode: Mode
+  ) {
     if (!Number.isInteger(width)) {
       throw new Error("Width must be integer");
     }
@@ -16,13 +25,18 @@ class Grid {
   }
 
   withValue(position: Vector2D, value: Char): Grid {
-    if (!this.isInside(position)) {
+    if (!this.isEditable(position)) {
+      return this;
+    }
+
+    if (value === "#" && this.mode === Mode.Solve) {
       return this;
     }
 
     return new Grid(
       this.values.with(this.toIndex(position), value),
-      this.width
+      this.width,
+      this.mode
     );
   }
 
@@ -33,6 +47,26 @@ class Grid {
       position.y < this.height &&
       position.y >= 0
     );
+  }
+
+  isValueWritable(value: Char): boolean {
+    if (value === "#" && this.mode === Mode.Solve) {
+      return false;
+    }
+
+    return true;
+  }
+
+  isEditable(position: Vector2D): boolean {
+    if (!this.isInside(position)) {
+      return false;
+    }
+
+    if (this.mode === Mode.Build) {
+      return true;
+    }
+
+    return this.values[this.toIndex(position)] !== "#";
   }
 
   toIndex(position: Vector2D) {

@@ -3,7 +3,7 @@
 import { ChangeEvent, KeyboardEvent, MouseEvent, useState } from "react";
 import Cell from "./Cell";
 import Vector2D from "./Vector2D";
-import Grid from "./Grid";
+import Grid, { Mode } from "./Grid";
 import { Char, isChar } from "./Char";
 import styles from "./crosswords.module.css";
 import { useFocus } from "./useFocus";
@@ -17,7 +17,8 @@ export default function Crosswords() {
         .concat(new Array(8 * 11).fill(""))
         .with(11, "#")
         .with(12, "#"),
-      8
+      8,
+      Mode.Solve
     )
   );
   const [cursor, setCursor] = useState(new Vector2D(0, 1));
@@ -27,7 +28,7 @@ export default function Crosswords() {
 
   const doMove = (direction: Vector2D) => {
     const nexCursor = cursor.add(direction);
-    if (grid.isInside(nexCursor)) {
+    if (grid.isEditable(nexCursor)) {
       setCursor(nexCursor);
     }
   };
@@ -49,24 +50,28 @@ export default function Crosswords() {
     setWordDirection(
       new Vector2D(Math.abs(direction.x), Math.abs(direction.y))
     );
+    // TODO maybe put the focused full word in the input
+    setInput("");
 
     doMove(direction);
   };
 
   const deleteValue = (e: KeyboardEvent) => {
-    if (e.ctrlKey) {
+    if (!grid.isEditable(cursor)) {
       return;
     }
 
-    if (e.key === "Delete" || e.key === "Backspace") {
-      setGrid(grid.withValue(cursor, ""));
-      if (e.key === "Backspace") {
-        doMove(wordDirection.opposite());
-      }
-      setInput(input.slice(0, -1));
-
-      e.preventDefault();
+    if (!["Delete", "Backspace"].includes(e.key)) {
+      return;
     }
+
+    setGrid(grid.withValue(cursor, ""));
+    if (e.key === "Backspace") {
+      doMove(wordDirection.opposite());
+    }
+
+    e.preventDefault();
+    setInput(input.slice(0, -1));
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -76,15 +81,26 @@ export default function Crosswords() {
 
   const handleMouseDown = (e: MouseEvent, position: Vector2D) => {
     e.preventDefault();
-    setCursor(position);
-    setFocused(true);
+    if (grid.isEditable(position)) {
+      setCursor(position);
+      setFocused(true);
+    }
   };
 
+  // TODO check with autocorrect, etc...
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
     const value = inputValue.slice(-1).toUpperCase();
 
+    if (inputValue.length !== input.length + 1) {
+      return;
+    }
+
     if (!isChar(value)) {
+      return;
+    }
+
+    if (!grid.isValueWritable(value)) {
       return;
     }
 
