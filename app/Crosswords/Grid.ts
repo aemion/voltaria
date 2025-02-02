@@ -1,4 +1,6 @@
 import { Char } from "./Char";
+import { ClueCollection } from "./Clue";
+import { Directions } from "./Direction";
 import Vector2D from "./Vector2D";
 
 export enum Mode {
@@ -6,12 +8,21 @@ export enum Mode {
   Build,
 }
 
+type Cell = {
+  position: Vector2D;
+  value: Char;
+  isFirst: boolean;
+  isLast: boolean;
+};
+
 class Grid {
   readonly height: number;
+  readonly clueCollection: ClueCollection;
   constructor(
     readonly values: Char[],
     readonly width: number,
-    readonly mode: Mode
+    readonly mode: Mode,
+    clueCollection?: ClueCollection
   ) {
     if (!Number.isInteger(width)) {
       throw new Error("Width must be integer");
@@ -22,6 +33,8 @@ class Grid {
       throw new Error("Incorrect number of values in grid");
     }
     this.height = length / width;
+
+    this.clueCollection = clueCollection || ClueCollection.fromGrid(this);
   }
 
   withValue(position: Vector2D, value: Char): Grid {
@@ -36,7 +49,17 @@ class Grid {
     return new Grid(
       this.values.with(this.toIndex(position), value),
       this.width,
-      this.mode
+      this.mode,
+      this.clueCollection
+    );
+  }
+
+  clean(): Grid {
+    return new Grid(
+      this.values.map((value) => (value === "#" ? "#" : "")),
+      this.width,
+      this.mode,
+      this.clueCollection
     );
   }
 
@@ -66,7 +89,7 @@ class Grid {
       return true;
     }
 
-    return this.values[this.toIndex(position)] !== "#";
+    return this.getValue(position) !== "#";
   }
 
   toIndex(position: Vector2D) {
@@ -77,11 +100,27 @@ class Grid {
     return new Vector2D(index % this.width, Math.floor(index / this.width));
   }
 
-  getCells(): Array<{ position: Vector2D; value: Char }> {
-    return this.values.map((value, index) => ({
-      position: this.toPosition(index),
-      value,
-    }));
+  getCells(direction: Directions = Directions.Horizontal): Cell[] {
+    return this.values.map((_, index) => {
+      const realIndex =
+        direction === Directions.Horizontal
+          ? index
+          : (index % this.height) * this.width +
+            Math.floor(index / this.height);
+      const size =
+        direction === Directions.Horizontal ? this.width : this.height;
+      const positionInCollection = index % size;
+      return {
+        position: this.toPosition(realIndex),
+        value: this.values[realIndex],
+        isFirst: positionInCollection === 0,
+        isLast: positionInCollection === size - 1,
+      };
+    });
+  }
+
+  private getValue(position: Vector2D): Char {
+    return this.values[this.toIndex(position)];
   }
 }
 

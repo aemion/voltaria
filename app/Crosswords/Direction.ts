@@ -1,8 +1,8 @@
 import Vector2D from "./Vector2D";
 
 export enum Directions {
-  Horizontal,
-  Vertical,
+  Horizontal = "H",
+  Vertical = "V",
 }
 
 export class Direction {

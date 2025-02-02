@@ -3,8 +3,8 @@
 import { ChangeEvent, KeyboardEvent, MouseEvent, useState } from "react";
 import Cell from "./Cell";
 import Vector2D from "./Vector2D";
-import Grid, { Mode } from "./Grid";
-import { Char, isChar } from "./Char";
+import { isChar } from "./Char";
+import sample from "./sample";
 import styles from "./crosswords.module.css";
 import { useFocus } from "./useFocus";
 import { Direction } from "./Direction";
@@ -13,17 +13,8 @@ const cellSize = 40;
 const isProd = process.env.NODE_ENV === "production";
 
 export default function Crosswords() {
-  const [grid, setGrid] = useState(
-    new Grid(
-      ("VOLTARIA".split("") as Char[])
-        .concat(new Array(8 * 11).fill(""))
-        .with(11, "#")
-        .with(12, "#"),
-      8,
-      Mode.Solve
-    )
-  );
-  const [cursor, setCursor] = useState(new Vector2D(0, 1));
+  const [grid, setGrid] = useState(sample);
+  const [cursor, setCursor] = useState(new Vector2D(0, 0));
   const [wordDirection, setWordDirection] = useState(new Vector2D(1, 0));
   const [ref, isFocused, setFocused] = useFocus<HTMLInputElement>();
   const [input, setInput] = useState("");
@@ -139,6 +130,24 @@ export default function Crosswords() {
           />
         ))}
       </svg>
+      <div>
+        <h1>Horizontal</h1>
+        <ul>
+          {grid.clueCollection
+            .getHorizontalGroupedByRow()
+            .map((clues, index) => (
+              <li key={index}>{clues.map((clue) => clue.clue).join(". ")}</li>
+            ))}
+        </ul>
+        <h1>Vertical</h1>
+        <ul>
+          {grid.clueCollection
+            .getVerticalGroupedByColumn()
+            .map((clues, index) => (
+              <li key={index}>{clues.map((clue) => clue.clue).join(". ")}</li>
+            ))}
+        </ul>
+      </div>
     </>
   );
 }
